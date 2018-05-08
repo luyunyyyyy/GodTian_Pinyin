@@ -2,9 +2,9 @@
 # coding=utf-8
 """
 File Name: TrainMatrix.py
-Description: Train three Matrix A, B, Pi from Corpus.
-Date: 2016-11-13
-Author: QIU HU
+Description: 有待阅读，看了一下main函数，里面是训练模型的内容，把训练的结果保存到二进制文件中
+需要注意的是这个貌似没有原始数据文件，只有训练的结果。
+
 """
 
 from pypinyin import lazy_pinyin, NORMAL
