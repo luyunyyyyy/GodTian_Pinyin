@@ -3,9 +3,9 @@
 
 """
 File Name: GodTian_Pinyin.py
-Description: GodTian_Pinyin main function, with veterbi algorithm
-Date: 2016-11-13
-Author: QIU HU
+Description: 本文件实现了一个从拼音到候选词的过程，可以认为gui.py是调用了本文件的方法来实现可视化功能的
+res1 是一个基于数组实现的优先队列。其中只保存权值最大的k个元素。其他的就会去除掉
+
 """
 
 import cPickle as pickle
