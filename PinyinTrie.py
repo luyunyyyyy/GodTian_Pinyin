@@ -22,7 +22,7 @@ class HZ(object):
 class Node(object):
     def __init__(self):
         self.v = {}    # ("腾", 1), ("疼", 2)
-        self.child = {}
+        self.child = {} # 创建一个字典 key 是字符 value是节点对象
 
 
 class PinyinTrie(object):
@@ -44,7 +44,7 @@ class PinyinTrie(object):
         else:
             cur_node.v[hanzi] += 1
 
-    def search(self, pyin):
+    def search(self, pyin):  # 搜索给定的拼音的最后结果集合
         cur_node = self.root
         for ch in pyin:
             if ch not in cur_node.child:
@@ -90,12 +90,16 @@ if __name__ == '__main__':
 
     trie = PinyinTrie()
     trie.add('wo', u"我")
+    trie.add('wo', u"我")
+    trie.add('nihao', u"你好")
     trie.add('lai', u"来")
     trie.add('da', u"打")
     trie.add('ni', u"你")
-    trie.display_trie()
+    # trie.display_trie()
 
-    print(trie)
-    print(trie.search('da'))
-    print(trie.search('hao'))
+    # print(trie)
+    # print(trie.search('da'))
+    # print(trie.search('hao'))
 
+    trie.dfs_display(trie.root,"")
+    trie.get_totalwords_of_prefix(trie.root,)

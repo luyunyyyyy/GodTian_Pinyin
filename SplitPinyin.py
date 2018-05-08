@@ -550,7 +550,7 @@ class SplitPinyin(object):
         many_part = False
         res_list = []
         input_lis = input.split('\'')
-        for idx, input in enumerate(input_lis):
+        for idx, input in enumerate(input_lis): # enumerate 迭代一个list 获得元素和位置
             input += '$'
             length = len(input)
             tmp = ""
@@ -558,16 +558,16 @@ class SplitPinyin(object):
             while i < length:
                 attempt = tmp + input[i]
                 if attempt not in self.pinyin and attempt not in self.prefix:
-                    if tmp in self.pinyin:
+                    if tmp in self.pinyin:#如果当前的子序列不符合规定的话，如果之前一个序列是一个完整拼音，就把tmp放到结果里
                         res_list.append(tmp)
                         tmp = input[i]
-                    else:
+                    else:# 之前序列不是完整拼音
                         now_idx = i
                         now_tmp = tmp
-                        while len(tmp) > 0 and tmp not in self.pinyin:
+                        while len(tmp) > 0 and tmp not in self.pinyin:# 从后往前截取tmp 看能不能从tmp中截取出完整的拼音
                             tmp = tmp[:-1]
                             i -= 1
-                        if len(tmp) == 0:
+                        if len(tmp) == 0:# 没有截取出来
                             if idx == len(input_lis) - 1 and input[now_idx] == '$':  # 最后了
                                 res_list.append(now_tmp)
                                 two_part = True
@@ -593,3 +593,6 @@ if __name__ == '__main__':
 
     a = SplitPinyin()
     print(a.split_pinyin("qhdx"))
+    print(a.split_pinyin("bj"))
+    print(a.split_pinyin("beij"))
+    print(a.split_pinyin("bjing"))

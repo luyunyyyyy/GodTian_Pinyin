@@ -1,5 +1,6 @@
 #! usr/bin/python
 # coding=utf-8
+
 """
 File Name: GodTian_Pinyin.py
 Description: GodTian_Pinyin main function, with veterbi algorithm
@@ -13,6 +14,7 @@ import SplitPinyin as sp
 import re
 import os
 from pypinyin import lazy_pinyin
+
 MIN_PROB = -500.0  # after log
 import time
 import collections
@@ -38,13 +40,14 @@ def emit_a_b(emit, a, b):
             return max(emit[a][b], MIN_PROB)
     return MIN_PROB
 
-def emit_a_b_many(emit,hanyu,pinyin):
+
+def emit_a_b_many(emit, hanyu, pinyin):
     if hanyu in emit:
         judge = 0
         max_pinyin = -9999
         max_i = -1
         for val in emit[hanyu]:
-            for i in range(0,len(val)):
+            for i in range(0, len(val)):
                 if pinyin == val[:i]:
                     judge = 1
                     if emit[hanyu][val] > max_pinyin:
@@ -53,22 +56,23 @@ def emit_a_b_many(emit,hanyu,pinyin):
             return max(max_pinyin, MIN_PROB)
     return MIN_PROB
 
-def serch_in_dict(pyl,dict):
+
+def serch_in_dict(pyl, dict):
     res = ""
     ii = 15
     for i in pyl:
-        if i!=" ":
+        if i != " ":
             res += i
     res += "  "
     if res in dict:
-        list =  PrioritySet(15)
+        list = PrioritySet(15)
         s = sorted(dict[res].iteritems(), key=lambda d: d[1], reverse=True)
         mm = 0
         for j in s:
             list1 = []
             for o in j[0]:
                 list1.append(o)
-            list.put(j[1],list1)
+            list.put(j[1], list1)
             mm += 1
         return list
     else:
@@ -104,10 +108,10 @@ class GodTian_Pinyin(object):
         idx = 0
         cur_obs = pylist[t]  #
 
-        topp =100
+        topp = 100
 
         prefix_ans = {}
-        self.pt.get_totalwords_of_prefix(self.pt.root,pylist[0], prefix_ans)
+        self.pt.get_totalwords_of_prefix(self.pt.root, pylist[0], prefix_ans)
         sorted_pf_ans = sorted(prefix_ans.items(), key=lambda x: x[1], reverse=True)
         words = [hz_freq[0] for hz_freq in sorted_pf_ans[:topp]]
         cur_cand_states = words  # 可能状态
@@ -128,7 +132,7 @@ class GodTian_Pinyin(object):
         for t in range(START, pylislen):
             cur_obs = pylist[t]
             print "---------------"
-            print pylist,t,pylist[t]
+            print pylist, t, pylist[t]
             idx = t % 2
             V[idx] = {}
             prev_states = cur_cand_states
@@ -170,14 +174,14 @@ class GodTian_Pinyin(object):
         if prepyseq in self.memo:
             TAG = 1
             start = time.time()
-            T = pylislen-1   # Last one's index
+            T = pylislen - 1  # Last one's index
             cur_cand_states = []
             for state in self.memo[prepyseq]:
                 cur_cand_states.append(state)
                 V[pylislen % 2][state] = self.memo[prepyseq][state]
             START = T
             end = time.time()
-            print("READ MEMORY COST {}".format(end-start))
+            print("READ MEMORY COST {}".format(end - start))
         else:
             for state in cur_cand_states:
                 tao = Pi_state(self.Pi, state) + emit_a_b(self.emit, state, cur_obs)
@@ -198,14 +202,14 @@ class GodTian_Pinyin(object):
                 cur_cand_states = words
             for state in cur_cand_states:  # 此时状态
                 V[idx].setdefault(state, PrioritySet(top))
-                for prev in prev_states:   # 前一个状态
-                    for cand in V[(idx+1) % 2][prev]:  # 前一个状态为prev, cand的概率
+                for prev in prev_states:  # 前一个状态
+                    for cand in V[(idx + 1) % 2][prev]:  # 前一个状态为prev, cand的概率
                         tao = trans_a_b(self.trans, prev, state) + emit_a_b(self.emit, state, cur_obs)
                         new_tao = tao + cand.score
                         _p = cand.path + [state]
                         V[idx][state].put(new_tao, _p)
         end = time.time()
-        print("RUN VITERBI COST： {}".format(end-start))
+        print("RUN VITERBI COST： {}".format(end - start))
         start = time.time()
         results = PrioritySet(top)
         for last_state in V[idx]:
@@ -214,7 +218,7 @@ class GodTian_Pinyin(object):
                 results.put(item.score, item.path)
         results = [item for item in results]
         end = time.time()
-        print("LAST PROCESSING: {}".format(end-start))
+        print("LAST PROCESSING: {}".format(end - start))
         return sorted(results, key=lambda x: x.score, reverse=True)
 
     def save_memo_and_cache(self):
@@ -224,17 +228,17 @@ class GodTian_Pinyin(object):
 
     def handle_current_input(self, input, topv=15, topp=15):
         input = input.lower()
-        if self.pat.findall(input):   # 全数字，直接返回
+        if self.pat.findall(input):  # 全数字，直接返回
             return input
-        pyl, two_part,may_parts = self.sp.split_pinyin(input)
-        print(pyl, two_part,may_parts)
+        pyl, two_part, may_parts = self.sp.split_pinyin(input)
+        print(pyl, two_part, may_parts)
         if two_part == True and may_parts == False:
             prefix_ans = {}
             start = time.time()
             self.pt.get_totalwords_of_prefix(self.pt.root, pyl[-1], prefix_ans)
             sorted_pf_ans = sorted(prefix_ans.items(), key=lambda x: x[1], reverse=True)
             end = time.time()
-            print("GET PREFIX COST: {}".format(end-start))
+            print("GET PREFIX COST: {}".format(end - start))
             words = [hz_freq[0] for hz_freq in sorted_pf_ans[:topp]]
             # -------------------------
             best_viterbi_ans = []
@@ -245,37 +249,34 @@ class GodTian_Pinyin(object):
                 pyl[-1] = py
                 viterbi_ans = self.viterbi(pyl, topv, [words[_]])  # self.momo["".join(pyl[:-1]][state...] =
             end = time.time()
-            print("VITERBI COST: {}".format(end-start))
+            print("VITERBI COST: {}".format(end - start))
             best_viterbi_ans.extend(viterbi_ans)
             return best_viterbi_ans, two_part
         elif may_parts:
-            new_viterbi_ans = serch_in_dict(pyl,self.dict)
+            new_viterbi_ans = serch_in_dict(pyl, self.dict)
             print new_viterbi_ans
-            if new_viterbi_ans ==[]:
-               new_viterbi_ans = self.newviterbi(pyl, topv)
-            return new_viterbi_ans,two_part
+            if new_viterbi_ans == []:
+                new_viterbi_ans = self.newviterbi(pyl, topv)
+            return new_viterbi_ans, two_part
         else:
             viterbi_ans = self.viterbi(pyl, topv, [])
             print viterbi_ans
             return viterbi_ans, two_part
 
 
+if __name__ == '__main__':
 
+    a = sp.SplitPinyin()
+    godtian = GodTian_Pinyin()
 
-# if __name__ == '__main__':
-#
-#     a = sp.SplitPinyin()
-#     godtian = GodTian_Pinyin()
-#
-#     while True:
-#         input2 = input("input: ")
-#         if input2 in ['Q', 'q']:
-#             break
-#         res1, two_part = godtian.handle_current_input(input2, 100, 100)
-#         for _ in range(0, min(len(res1), 10)):
-#             r = res1[_]
-#             for i in r.path:
-#                 print (i)
-#             print("")
+    while True:
+        input2 = raw_input("input: ")
 
-
+        if input2 in ['Q', 'q']:
+            break
+        res1, two_part = godtian.handle_current_input(input2, 100, 100)
+        for _ in range(0, min(len(res1), 10)):
+            r = res1[_]
+            for i in r.path:
+                print (i)
+            print("")
